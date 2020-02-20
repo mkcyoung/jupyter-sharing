@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="KeplerMapper">
+  <title>Twins & Weirdos + mapper | KeplerMapper</title>
+
+  <link rel="icon" type="image/png" href="http://i.imgur.com/axOG6GJ.jpg" />
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:700,300' rel='stylesheet' type='text/css'>
+  <style>* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Roboto Mono", "Helvetica", sans-serif;
+  font-size: 14px;
+}
+
+#logo {
+  position: absolute;
+  right: 00px;
+  top: 0px;
+  width: 90px;
+  height: 90px;
+  z-index: 999999;
+}
+
+#display {
+  color: #95A5A6;
+  background: #212121;
+}
+
+#print {
+  color: #000;
+  background: #FFF;
+}
+
+h1 {
+  font-size: 21px;
+  font-weight: 300;
+  font-weight: 300;
+}
+
+h2 {
+  font-size: 18px;
+  padding-bottom: 20px;
+  font-weight: 300;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h4 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-bottom:0px;
+}
+
+
+#meta_content h3 {
+  float: left;
+  padding-right: 8px;
+}
+
+p, #tooltip_content h3, ol, ul, table {
+  padding-bottom: 10px;
+}
+
+ol, ul {
+  padding-left: 20px;
+}
+
+ol b {
+  display: block;
+}
+
+a {
+  color: #16a085;
+  text-decoration: none;
+}
+
+#panes {
+    /* background: #e24d4d; */
+  /* position: absolute; */
+  /* height: 100%; */
+  /* width: 100%; */
+  /* display: block; */
+  /* z-index: 9999; */
+}
+
+a:hover {
+  color: #2ecc71;
+}
+
+#header {
+  height: 35px;
+  /* padding-top: 20px; */
+  padding:10px;
+  padding-left:20px;
+  position: relative;
+}
+
+#display #header, #display #toolbar {
+  background: #111111;
+  box-shadow: 0px 0px 4px #000;
+}
+
+#print #header, #print #toolbar {
+  background: #FFF;
+}
+
+
+#canvas {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: block;
+}
+
+
+#toolbar {
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  width: 100%;
+  overflow: auto;
+}
+
+/* #display #toolbar {
+  background: #111111;
+}
+
+#print #toolbar {
+  background: #FFF;
+} */
+
+.tool_item {
+  padding-left: 20px;
+  position: relative;
+  float: left;
+}
+
+.pane_content {
+  position: relative;
+  float: left;
+  width: 300px;
+  height:100%;
+  padding: 20px;
+  overflow: auto;
+  display: none;
+}
+
+/* Chrome only: */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+  .pane_content {
+    width: 314px;
+    padding-right: 10px;
+  }
+}
+
+
+#helptip_content {
+  float:right;
+}
+
+#display .pane_content {
+  background: #191919;
+}
+
+#print .pane_content{
+  background: #FFF;
+}
+
+#meta_content {
+  float:right;
+}
+
+#meta_content::-webkit-scrollbar, #tooltip_content::-webkit-scrollbar {
+  width: 1em;
+}
+
+#meta_content::-webkit-scrollbar-track, #tooltip_content::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+#meta_content::-webkit-scrollbar-thumb, #tooltip_content::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+#histogram {
+  display: block;
+  height: 100px;
+  padding-top: 50px;
+  clear: both;
+}
+
+#display #histogram {
+  opacity: 0.68;
+}
+
+.bin {
+  width: 10%;
+  float: left;
+}
+
+.bin div {
+  font-size: 10px;
+  display: block;
+  width: 35px;
+  margin-top: -30px;
+  text-align: right;
+  margin-left: -3px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+}
+
+#histogram:hover {
+  opacity: 1.;
+}
+
+#display .circle {
+  stroke-opacity: 0.18;
+  stroke-width: 7px;
+  stroke: #000;
+}
+
+#print .circle {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  stroke: #000;
+  stroke-linecap: round;
+}
+
+#print .link {
+  stroke: #000;
+}
+
+#display .link {
+  stroke: rgba(160, 160, 160, 0.5);
+}
+
+table {
+  border-collapse: collapse;
+  display: table;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+td, th {
+  padding: 5px;
+  text-align: left;
+}
+
+#display th {
+  background: #212121
+}
+
+td {
+  border-bottom: 1px solid #111;
+}
+</style>
+
+</head>
+
+<body id="display">
+
+  <!-- Storage of data so D3 can access it later. This is in <body> so Chrome doesn't wholesale move all head content to body. -->
+  <div id="json_graph" data-graph='{"links": [{"source": 0, "target": 1, "width": 1}, {"source": 0, "target": 2, "width": 1}, {"source": 0, "target": 3, "width": 1}, {"source": 0, "target": 4, "width": 1}, {"source": 1, "target": 6, "width": 1}, {"source": 2, "target": 5, "width": 1}, {"source": 5, "target": 7, "width": 1}, {"source": 6, "target": 8, "width": 1}, {"source": 7, "target": 10, "width": 1}, {"source": 8, "target": 12, "width": 1}, {"source": 9, "target": 14, "width": 1}, {"source": 10, "target": 13, "width": 1}, {"source": 11, "target": 17, "width": 1}, {"source": 13, "target": 19, "width": 1}, {"source": 14, "target": 20, "width": 1}, {"source": 15, "target": 18, "width": 1}, {"source": 17, "target": 21, "width": 1}, {"source": 20, "target": 23, "width": 1}, {"source": 21, "target": 23, "width": 1}, {"source": 23, "target": 24, "width": 1}, {"source": 24, "target": 25, "width": 1}, {"source": 25, "target": 26, "width": 1}, {"source": 26, "target": 27, "width": 1}, {"source": 27, "target": 28, "width": 1}], "nodes": [{"color": 0.2684212224381857, "id": "", "name": "cube0_cluster0", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube0_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:2.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e1.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e83.6%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:18.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e14.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e116\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n3\n\n17\n\n25\n\n32\n\n35\n\n40\n\n50\n\n51\n\n52\n\n53\n\n54\n\n60\n\n64\n\n79\n\n80\n\n85\n\n89\n\n98\n\n110\n\n116\n\n131\n\n133\n\n151\n\n163\n\n165\n\n168\n\n202\n\n211\n\n221\n\n240\n\n242\n\n248\n\n267\n\n268\n\n274\n\n280\n\n283\n\n292\n\n293\n\n307\n\n316\n\n319\n\n323\n\n341\n\n343\n\n348\n\n373\n\n374\n\n387\n\n392\n\n393\n\n401\n\n415\n\n417\n\n421\n\n440\n\n444\n\n455\n\n456\n\n458\n\n462\n\n465\n\n466\n\n474\n\n477\n\n484\n\n485\n\n512\n\n513\n\n524\n\n548\n\n563\n\n589\n\n592\n\n600\n\n604\n\n612\n\n621\n\n640\n\n641\n\n648\n\n651\n\n668\n\n673\n\n675\n\n698\n\n702\n\n704\n\n708\n\n715\n\n718\n\n723\n\n725\n\n740\n\n754\n\n769\n\n784\n\n802\n\n829\n\n837\n\n844\n\n845\n\n849\n\n850\n\n852\n\n861\n\n871\n\n883\n\n889\n\n923\n\n927\n\n948\n\n959\n\n977\n\n983\n\n999\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.25921139219238004, "id": "", "name": "cube1_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e89.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:11.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e10.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e39\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n32\n\n46\n\n62\n\n78\n\n85\n\n173\n\n201\n\n242\n\n269\n\n276\n\n285\n\n294\n\n370\n\n371\n\n390\n\n393\n\n450\n\n485\n\n519\n\n573\n\n600\n\n614\n\n666\n\n669\n\n698\n\n701\n\n704\n\n708\n\n713\n\n717\n\n718\n\n784\n\n834\n\n909\n\n914\n\n934\n\n939\n\n949\n\n958\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.3008648431983447, "id": "", "name": "cube1_cluster1", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:3.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e1.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:95.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e47.4%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e50.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:3.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e1.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e78\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n50\n\n54\n\n87\n\n116\n\n131\n\n136\n\n145\n\n154\n\n169\n\n198\n\n202\n\n206\n\n220\n\n221\n\n226\n\n248\n\n250\n\n255\n\n272\n\n283\n\n297\n\n303\n\n311\n\n334\n\n343\n\n345\n\n346\n\n357\n\n378\n\n420\n\n423\n\n425\n\n438\n\n441\n\n443\n\n451\n\n452\n\n455\n\n506\n\n562\n\n581\n\n582\n\n587\n\n591\n\n604\n\n607\n\n616\n\n621\n\n641\n\n644\n\n651\n\n679\n\n688\n\n705\n\n722\n\n741\n\n771\n\n787\n\n800\n\n814\n\n826\n\n833\n\n848\n\n853\n\n861\n\n871\n\n895\n\n896\n\n901\n\n912\n\n916\n\n927\n\n938\n\n956\n\n959\n\n977\n\n986\n\n990\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.2662404127499913, "id": "", "name": "cube1_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n52\n\n110\n\n165\n\n293\n\n323\n\n373\n\n444\n\n563\n\n748\n\n829\n\n999\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.30941735436277756, "id": "", "name": "cube1_cluster3", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster3)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:75.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e42.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e57.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e7\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n112\n\n163\n\n387\n\n477\n\n744\n\n769\n\n844\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.36259296781662553, "id": "", "name": "cube2_cluster0", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube2_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:52.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e27.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e52.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:29.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e15.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:10.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e5.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e59\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n11\n\n16\n\n57\n\n71\n\n106\n\n128\n\n136\n\n145\n\n180\n\n206\n\n241\n\n245\n\n255\n\n273\n\n297\n\n303\n\n312\n\n314\n\n368\n\n396\n\n397\n\n400\n\n423\n\n446\n\n451\n\n453\n\n481\n\n497\n\n561\n\n562\n\n582\n\n587\n\n591\n\n606\n\n624\n\n644\n\n680\n\n695\n\n705\n\n714\n\n722\n\n750\n\n771\n\n775\n\n781\n\n787\n\n788\n\n794\n\n800\n\n833\n\n841\n\n853\n\n854\n\n895\n\n901\n\n912\n\n915\n\n947\n\n992\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.2552306239288599, "id": "", "name": "cube2_cluster1", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube2_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:4.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e3.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e90.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:7.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e6.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e31\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n62\n\n76\n\n78\n\n201\n\n210\n\n269\n\n285\n\n339\n\n366\n\n370\n\n371\n\n439\n\n450\n\n540\n\n547\n\n583\n\n584\n\n615\n\n637\n\n653\n\n684\n\n701\n\n811\n\n819\n\n866\n\n909\n\n914\n\n934\n\n949\n\n951\n\n975\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.4824970579102177, "id": "", "name": "cube3_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube3_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:8.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e2.6%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:33.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e10.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:75.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e23.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:17.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e5.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:92.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e28.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e30.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e39\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n15\n\n16\n\n39\n\n55\n\n57\n\n58\n\n122\n\n139\n\n180\n\n200\n\n215\n\n241\n\n258\n\n273\n\n363\n\n368\n\n424\n\n500\n\n501\n\n516\n\n557\n\n606\n\n682\n\n695\n\n700\n\n703\n\n775\n\n781\n\n794\n\n799\n\n840\n\n847\n\n854\n\n886\n\n898\n\n930\n\n964\n\n991\n\n993\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.23651955103981423, "id": "", "name": "cube3_cluster1", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube3_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:12.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e10.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e89.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e28\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n30\n\n166\n\n210\n\n260\n\n304\n\n339\n\n377\n\n398\n\n412\n\n491\n\n535\n\n571\n\n578\n\n584\n\n707\n\n719\n\n720\n\n733\n\n762\n\n780\n\n811\n\n819\n\n823\n\n851\n\n888\n\n894\n\n951\n\n975\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.18635060671908177, "id": "", "name": "cube4_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e80.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:25.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e20.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n4\n\n142\n\n158\n\n232\n\n874\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.4485644986217442, "id": "", "name": "cube4_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:6.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e2.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e44.4%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:6.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e2.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:31.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e13.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:75.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e33.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:6.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e2.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e36\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n28\n\n55\n\n122\n\n197\n\n200\n\n228\n\n256\n\n262\n\n271\n\n278\n\n363\n\n381\n\n383\n\n500\n\n507\n\n510\n\n544\n\n557\n\n634\n\n674\n\n697\n\n729\n\n793\n\n799\n\n801\n\n840\n\n847\n\n875\n\n893\n\n906\n\n957\n\n964\n\n980\n\n982\n\n991\n\n993\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.14364531046214674, "id": "", "name": "cube4_cluster1", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n134\n\n167\n\n556\n\n595\n\n970\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.22895398516141008, "id": "", "name": "cube4_cluster3", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster3)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:10.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e9.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e90.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n178\n\n296\n\n398\n\n412\n\n461\n\n571\n\n719\n\n780\n\n823\n\n894\n\n973\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.34080864908806946, "id": "", "name": "cube5_cluster0", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e85.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:5.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e4.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:3.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e2.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:2.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e1.4%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:7.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e5.6%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e71\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n2\n\n8\n\n9\n\n28\n\n34\n\n48\n\n67\n\n81\n\n82\n\n113\n\n114\n\n162\n\n185\n\n190\n\n196\n\n197\n\n214\n\n219\n\n228\n\n237\n\n253\n\n256\n\n284\n\n315\n\n332\n\n335\n\n337\n\n358\n\n362\n\n383\n\n399\n\n410\n\n411\n\n448\n\n467\n\n469\n\n470\n\n503\n\n507\n\n510\n\n517\n\n544\n\n601\n\n608\n\n613\n\n625\n\n634\n\n674\n\n678\n\n687\n\n696\n\n697\n\n768\n\n778\n\n793\n\n816\n\n830\n\n843\n\n862\n\n875\n\n884\n\n890\n\n903\n\n906\n\n931\n\n937\n\n946\n\n957\n\n961\n\n980\n\n982\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.16701626438458095, "id": "", "name": "cube5_cluster3", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster3)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n4\n\n344\n\n386\n\n414\n\n997\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.25859919070815945, "id": "", "name": "cube5_cluster1", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e80.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:25.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e20.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n5\n\n115\n\n160\n\n486\n\n552\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.5673077793101841, "id": "", "name": "cube5_cluster4", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster4)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:50.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e50.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:50.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n84\n\n825\n\n881\n\n925\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.12454384700337474, "id": "", "name": "cube5_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e7\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n134\n\n179\n\n313\n\n380\n\n556\n\n617\n\n970\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.24025880241571862, "id": "", "name": "cube6_cluster3", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster3)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n5\n\n115\n\n160\n\n385\n\n552\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.2948362095787758, "id": "", "name": "cube6_cluster2", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e96.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:4.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e4.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e25\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n8\n\n121\n\n132\n\n161\n\n181\n\n214\n\n219\n\n298\n\n315\n\n332\n\n399\n\n457\n\n467\n\n469\n\n523\n\n537\n\n565\n\n608\n\n613\n\n625\n\n646\n\n654\n\n816\n\n843\n\n903\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.15237920335043403, "id": "", "name": "cube6_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e9\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n20\n\n344\n\n414\n\n521\n\n610\n\n786\n\n863\n\n920\n\n965\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.10766042919649327, "id": "", "name": "cube6_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:50.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e33.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e66.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e12\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n47\n\n179\n\n295\n\n313\n\n380\n\n442\n\n617\n\n642\n\n710\n\n842\n\n855\n\n907\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.22093927036059532, "id": "", "name": "cube6_cluster4", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster4)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n279\n\n391\n\n620\n\n692\n\n774\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.1329237932115667, "id": "", "name": "cube7_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube7_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:26.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e20.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e79.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e24\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n13\n\n20\n\n59\n\n152\n\n217\n\n224\n\n275\n\n422\n\n442\n\n521\n\n570\n\n572\n\n602\n\n610\n\n710\n\n759\n\n767\n\n779\n\n786\n\n855\n\n859\n\n863\n\n920\n\n965\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.08923777702187778, "id": "", "name": "cube8_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube8_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e90.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:10.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e9.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n14\n\n27\n\n140\n\n364\n\n376\n\n575\n\n631\n\n759\n\n836\n\n966\n\n968\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.08790999070215576, "id": "", "name": "cube9_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube9_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e61.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:63.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e38.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e13\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n14\n\n38\n\n376\n\n527\n\n574\n\n638\n\n657\n\n661\n\n724\n\n797\n\n836\n\n919\n\n968\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.060773227063083024, "id": "", "name": "cube10_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube10_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e94.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:6.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e5.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e19\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n19\n\n38\n\n65\n\n182\n\n231\n\n238\n\n336\n\n389\n\n405\n\n460\n\n488\n\n496\n\n514\n\n527\n\n560\n\n564\n\n657\n\n798\n\n988\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.12225732688221645, "id": "", "name": "cube11_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube11_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e63.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:58.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e36.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e49\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n19\n\n43\n\n45\n\n61\n\n65\n\n73\n\n77\n\n88\n\n97\n\n144\n\n153\n\n172\n\n186\n\n233\n\n235\n\n238\n\n286\n\n291\n\n321\n\n336\n\n389\n\n402\n\n404\n\n407\n\n454\n\n460\n\n488\n\n502\n\n504\n\n529\n\n579\n\n580\n\n609\n\n629\n\n652\n\n665\n\n745\n\n755\n\n760\n\n761\n\n763\n\n798\n\n815\n\n902\n\n905\n\n921\n\n935\n\n994\n\n995\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.18489310885843055, "id": "", "name": "cube12_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube12_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:52.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e34.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e65.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e41\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n45\n\n68\n\n73\n\n77\n\n97\n\n125\n\n172\n\n175\n\n186\n\n191\n\n207\n\n233\n\n300\n\n321\n\n402\n\n404\n\n407\n\n502\n\n526\n\n559\n\n579\n\n580\n\n588\n\n629\n\n663\n\n665\n\n737\n\n745\n\n755\n\n760\n\n761\n\n763\n\n815\n\n820\n\n869\n\n873\n\n902\n\n905\n\n981\n\n994\n\n995\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}]}' style="display:none"></div>
+  <div id="json_colorscale" data-colorscale='[[0.0, "rgb(68, 1, 84)"], [0.1, "rgb(72, 35, 116)"], [0.2, "rgb(64, 67, 135)"], [0.3, "rgb(52, 94, 141)"], [0.4, "rgb(41, 120, 142)"], [0.5, "rgb(32, 144, 140)"], [0.6, "rgb(34, 167, 132)"], [0.7, "rgb(68, 190, 112)"], [0.8, "rgb(121, 209, 81)"], [0.9, "rgb(189, 222, 38)"], [1.0, "rgb(253, 231, 36)"]]'
+  style="display:none"></div>
+
+  <div id="canvas">
+      <!-- Graph will go in here -->
+  </div>
+
+  <!-- Seperate canvas and panes so we can overlay elements -->
+  <div id="panes">
+    <img id="logo" src="https://i.imgur.com/bxux6WA.png">
+    
+<div id="toolbar">
+    <div id="tooltip_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="tooltip_tag">[+]</small></a> 
+        Cluster Details  
+        </h3>
+    </div>  
+    
+    <div id="meta_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="meta_tag">[+]</small></a> 
+        Mapper Summary 
+        </h3> 
+    </div>
+
+    <div id="help_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="helptip_tag">[+]</small></a>
+        Help
+        </h3>
+    </div>
+
+</div>
+
+    <div id="header">
+      <noscript><b>Requires JavaScript (d3.js) for visualizations</b></noscript>
+      <h1> Twins & Weirdos + mapper </h1>
+    </div>
+
+    <!-- Panes for each of the tips -->
+    <div id="tooltip">
+      <div id="tooltip_content" class="pane_content">
+        Hover over a node to see attributes about it.
+      </div>
+    </div>
+
+    <div id="helptip">
+        <div id="helptip_content" class="pane_content">
+            <!-- Help pane. 
+    TODO: Add more information here.  -->
+
+<ul>
+<li>Double click on a node to center graph at that node.</li>
+</ul>
+
+<table>
+    <tr>
+        <th>Key</th>
+        <th><small>Action</small></th>
+    </tr>
+
+    <tr>
+        <td>s</td>
+        <td><small>Nodes glow :D</small></td>
+    </tr>
+
+    <tr>
+        <td>c</td>
+        <td><small>remove glow</small></td>
+    </tr>
+
+    <tr>
+        <td>p</td>
+        <td><small>Print mode - white backgrounds</small></td>
+    </tr>
+
+    <tr>
+        <td>d</td>
+        <td><small>Display mode - black backgrounds</small></td>
+    </tr>
+
+    <tr>
+        <td>z</td>
+        <td><small>Turn off gravity</small></td>
+    </tr>
+
+    <tr>
+        <td>m</td>
+        <td><small>Spacious layout</small></td>
+    </tr>
+
+    <tr>
+        <td>e</td>
+        <td><small>Tight layout</small></td>
+    </tr>
+
+</table> 
+        </div>
+      </div>
+
+    <div id="meta">
+      <div id="meta_content" class="pane_content">
+        <h2>Mapper Summary</h2>
+
+<hr><br>
+
+
+    
+        <h3>projection </h3> <p> l2norm</p>
+    
+        <h3>n_cubes </h3> <p> 20</p>
+    
+        <h3>perc_overlap </h3> <p> 0.3</p>
+    
+        <h3>clusterer </h3> <p> DBSCAN(algorithm='auto', eps=0.45, leaf_size=30, metric='euclidean',<br>       metric_params=None, min_samples=5, n_jobs=None, p=None)</p>
+    
+        <h3>scaler </h3> <p> MinMaxScaler(copy=True, feature_range=(0, 1))</p>
+    
+
+
+<h3>Nodes</h3><p> 29 </p>
+
+<h3>Edges</h3><p> 24 </p>
+
+<h3>Total Samples</h3><p> 770</p>
+
+<h3>Unique Samples</h3><p> 554</p>
+
+<hr><br/>
+
+<h3>Node Distribution</h3>  
+
+<div id="histogram">
+<!-- Render histogram -->
+
+
+    <div class="bin" style="height:30.0px; background:rgb(70, 18, 100)">
+        <div>10.3%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:90.0px; background:rgb(68, 51, 125)">
+        <div>31.0%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:100.0px; background:rgb(58, 80, 138)">
+        <div>34.5%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:40.0px; background:rgb(46, 107, 141)">
+        <div>13.8%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:20.0px; background:rgb(36, 131, 141)">
+        <div>6.9%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:10.0px; background:rgb(33, 155, 136)">
+        <div>3.4%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:1.0px; background:rgb(51, 178, 121)">
+        <div>0.0%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:1.0px; background:rgb(94, 199, 96)">
+        <div>0.0%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:1.0px; background:rgb(155, 215, 59)">
+        <div>0.0%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:1.0px; background:rgb(220, 226, 37)">
+        <div>0.0%</div>
+    </div>     
+  
+
+</div>
+
+<br><br>
+
+
+<hr><br> 
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+
+  <script>// Height and width settings
+var canvas_height = window.innerHeight - 5;
+document.getElementById("canvas").style.height = canvas_height + "px";
+var width = document.getElementById("canvas").offsetWidth;
+var height = document.getElementById("canvas").offsetHeight;
+var w = width;
+var h = height;
+var padding = 40;
+
+var focus_node = null, highlight_node = null;
+var text_center = false;
+var outline = false;
+
+// Size for zooming
+var size = d3.scale.pow().exponent(1)
+           .domain([1,100])
+           .range([8,24]);
+
+// Variety of variable inits
+var highlight_color = "blue";
+var highlight_trans = 0.1;
+var default_node_color = "#ccc";
+var default_node_color = "rgba(160,160,160, 0.5)";
+var default_link_color = "rgba(160,160,160, 0.5)";
+var nominal_base_node_size = 8;
+var nominal_text_size = 15;
+var max_text_size = 24;
+var nominal_stroke = 1.0;
+var max_stroke = 4.5;
+var max_base_node_size = 36;
+var min_zoom = 0.1;
+var max_zoom = 7;
+var zoom = d3.behavior.zoom().scaleExtent([min_zoom,max_zoom]);
+
+
+var tocolor = "fill";
+var towhite = "stroke";
+if (outline) {
+  tocolor = "stroke";
+  towhite = "fill";
+}
+
+
+// We draw the graph in SVG
+var svg = d3.select("#canvas").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+svg.style("cursor","move");
+var g = svg.append("g");
+
+/**
+ * Side panes
+ * 
+ * 
+ * 
+ * 
+ */
+
+// Show/Hide Functionality
+var toggle_pane = function(content, content_id, tag){
+  var active = content.active ? false : true;
+
+  if (active){
+    content_id.style("display", "unset");
+    tag.textContent = "[-]";
+  } else{
+    content_id.style("display", "none");
+    tag.textContent = "[+]";
+  }
+
+  // TODO: This is probably not the best way to find the correct height.
+  var h = canvas_height - content.offsetTop - padding;
+  content_id.style("height", h + "px")
+
+  content.active = active;
+}
+
+d3.select("#tooltip_control").on("click", function() {
+  toggle_pane(tooltip_content, 
+              d3.select("#tooltip_content"), 
+              d3.select("#tooltip_tag")[0][0]);
+
+});
+
+d3.select("#meta_control").on("click", function() {
+  toggle_pane(meta_content, 
+              d3.select("#meta_content"),
+              d3.select("#meta_tag")[0][0])
+
+});
+
+d3.select("#help_control").on("click", function() {
+  toggle_pane(helptip_content, 
+              d3.select("#helptip_content"),
+              d3.select("#helptip_tag")[0][0])
+});
+
+
+
+/**
+ * 
+ * Set up color scale
+ * 
+ * 
+ */
+
+var colorscale = JSON.parse(document.getElementById("json_colorscale").dataset.colorscale);
+var domain = colorscale.map((x)=>x[0])
+var palette = colorscale.map((x)=>x[1])
+
+var color = d3.scale.linear()
+  .domain(domain)
+  .range(palette);
+
+
+/**
+ *  Graph setup 
+ * 
+ * 
+ */
+
+var graph = JSON.parse(document.getElementById("json_graph").dataset.graph);
+
+              
+// Force settings
+var force = d3.layout.force()
+            .linkDistance(5)
+            .gravity(0.2)
+            .charge(-1200)
+            .size([w,h]);
+
+force
+  .nodes(graph.nodes)
+  .links(graph.links)
+  .start();
+
+var link = g.selectAll(".link")
+            .data(graph.links)
+            .enter().append("line")
+              .attr("class", "link")
+              .style("stroke-width", function(d) { return d.w * nominal_stroke; })
+              .style("stroke-width", function(d) { return d.w * nominal_stroke; })
+
+
+var node = g.selectAll(".node")
+            .data(graph.nodes)
+            .enter().append("g")
+              .attr("class", "node")
+              .call(force.drag);
+
+// Double clicking on a node will center on it.
+node.on("dblclick.zoom", function(d) { d3.event.stopPropagation();
+  var dcx = (window.innerWidth/2-d.x*zoom.scale());
+  var dcy = (window.innerHeight/2-d.y*zoom.scale());
+  zoom.translate([dcx,dcy]);
+  g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+});
+
+
+
+
+// Drop-shadow Filter
+var svg = d3.select("svg");
+var defs = svg.append("defs");
+var dropShadowFilter = defs.append('svg:filter')
+  .attr('id', 'drop-shadow')
+  .attr('filterUnits', "userSpaceOnUse")
+  .attr('width', '250%')
+  .attr('height', '250%');
+dropShadowFilter.append('svg:feGaussianBlur')
+  .attr('in', 'SourceGraphic')
+  .attr('stdDeviation', 12)
+  .attr('result', 'blur-out');
+dropShadowFilter.append('svg:feColorMatrix')
+  .attr('in', 'blur-out')
+  .attr('type', 'hueRotate')
+  .attr('values', 0)
+  .attr('result', 'color-out');
+dropShadowFilter.append('svg:feOffset')
+  .attr('in', 'color-out')
+  .attr('dx', 0)
+  .attr('dy', 0)
+  .attr('result', 'the-shadow');
+dropShadowFilter.append('svg:feComponentTransfer')
+  .attr('type', 'linear')
+  .attr('slope', 0.2)
+  .attr('result', 'shadow-opacity');
+dropShadowFilter.append('svg:feBlend')
+  .attr('in', 'SourceGraphic')
+  .attr('in2', 'the-shadow')
+  .attr('mode', 'normal');
+
+// Draw circles
+var circle = node.append("path")
+  .attr("d", d3.svg.symbol()
+    .size(function(d) { return d.size * 50; })
+    .type(function(d) { return d.type; }))
+  .attr("class", "circle")
+  .style(tocolor, function(d) {
+    console.log("Node color:", d.color);
+    console.log("becomes color ", color(d.color));
+    return color(d.color);
+  });
+//.style("filter", "url(#drop-shadow)");
+
+
+// Format all text 
+var text = g.selectAll(".text")
+  .data(graph.nodes)
+  .enter().append("text")
+    .attr("dy", ".35em")
+    .style("font-family", "Roboto")
+    .style("font-weight", "400")
+    .style("color", "#2C3E50")
+    .style("font-size", nominal_text_size + "px");
+
+
+
+if (text_center) {
+  text.text(function(d) { return d.id; })
+    .style("text-anchor", "middle");
+} else {
+  text.attr("dx", function(d) {return (size(d.size)||nominal_base_node_size);})
+    .text(function(d) { return '\u2002'+d.id; });
+}
+
+
+/**
+ * Mouse Interactivity
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+node.on("mouseover", function(d) {
+  // Change node details
+  set_highlight(d);
+  d3.select("#tooltip_content").html(d.tooltip + "<br/>");
+}).on("mousedown", function(d) {
+  // TODO: This seems to only stop the one particular node from moving?
+
+  d3.event.stopPropagation();
+  focus_node = d;
+  if (highlight_node === null) {
+    set_highlight(d)
+  }
+}).on("mouseout", function(d) {
+  exit_highlight();
+});
+
+d3.select(window).on("mouseup", function() {
+  if (focus_node!==null){
+    focus_node = null;
+  }
+  if (highlight_node === null) {
+    exit_highlight();
+  }
+});
+
+// Node highlighting logic
+function exit_highlight(){
+  highlight_node = null;
+  if (focus_node===null){
+    svg.style("cursor","move");
+  }
+}
+
+function set_highlight(d){
+  svg.style("cursor","pointer");
+  if (focus_node!==null) d = focus_node;
+}
+
+
+// Zoom logic
+zoom.on("zoom", function() {
+  var stroke = nominal_stroke;
+  var base_radius = nominal_base_node_size;
+  if (nominal_base_node_size*zoom.scale()>max_base_node_size) {
+    base_radius = max_base_node_size/zoom.scale();}
+  circle.attr("d", d3.svg.symbol()
+    .size(function(d) { return d.size * 50; })
+    .type(function(d) { return d.type; }))
+  if (!text_center) text.attr("dx", function(d) {
+    return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
+
+  var text_size = nominal_text_size;
+  if (nominal_text_size*zoom.scale()>max_text_size) {
+    text_size = max_text_size/zoom.scale(); }
+  text.style("font-size",text_size + "px");
+
+  g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+});
+
+svg.call(zoom);
+resize();
+d3.select(window).on("resize", resize);
+
+// Animation per tick
+force.on("tick", function() {
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  text.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  link.attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
+  node.attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+});
+
+
+
+// Resizing window and redraws
+function resize() {
+  var width = window.innerWidth, height = window.innerHeight;
+  var width = document.getElementById("canvas").offsetWidth;
+  var height = document.getElementById("canvas").offsetHeight;
+  svg.attr("width", width).attr("height", height);
+
+  force.size([force.size()[0]+(width-w)/zoom.scale(),
+              force.size()[1]+(height-h)/zoom.scale()]).resume();
+  w = width;
+  h = height;
+}
+
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+// Key press events
+window.addEventListener("keydown", function (event) {
+if (event.defaultPrevented) {
+  return; // Do nothing if the event was already processed
+}
+
+
+switch (event.key) {
+  case "f":
+    console.log("Freeze graph")
+    break;
+  case "s":
+    // Do something for "s" key press.
+    node.style("filter", "url(#drop-shadow)");
+    break;
+  case "c":
+    // Do something for "s" key press.
+    node.style("filter", null);
+    break;
+  case "p":
+    // Turn to print mode, white backgrounds
+    d3.select("body").attr('id', null).attr('id', "print")
+    break;
+  case "d":
+    // Do something for "d" key press.
+    d3.select("body").attr('id', null).attr('id', "display")
+    break;
+  case "z":
+    force.gravity(0.0)
+         .charge(0.0);
+    resize();
+    break
+  case "m":
+    force.gravity(0.07)
+         .charge(-1);
+    resize();
+    break
+  case "e":
+    force.gravity(0.4)
+         .charge(-600);
+
+    resize();
+    break
+  default:
+    return; // Quit when this doesn't handle the key event.
+}
+// Cancel the default action to avoid it being handled twice
+event.preventDefault();
+}, true);
+</script>
+</body>
+
+</html>
